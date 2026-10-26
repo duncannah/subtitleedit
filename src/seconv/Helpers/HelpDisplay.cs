@@ -112,6 +112,7 @@ internal static class HelpDisplay
         ShowSection(console, "Image Output", "Apply when the target is an image-based format (e.g. bluraysup, vobsub).");
         ShowParameter(console, "--font-name:<name>", "Font family name (default: Arial)");
         ShowParameter(console, "--font-size:<points>", "Font size in points (default: 50)");
+        ShowParameter(console, "--letter-spacing:<pixels>", "Blu-ray SUP: extra pixels between shaped glyphs, including negative and fractional values (default: 0)");
         ShowParameter(console, "--font-color:<colour>", "Text colour as hex (#AARRGGBB/#RRGGBB) or name (default: white)");
         ShowParameter(console, "--font-bold", "Render text bold");
         ShowParameter(console, "--outline-color:<colour>", "Outline colour (default: black)");

@@ -291,6 +291,10 @@ internal sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
         [Description("Image output: font size in points (default: 50)")]
         public float? FontSize { get; init; }
 
+        [CommandOption("--letter-spacing")]
+        [Description("Blu-ray SUP: extra pixels between shaped glyphs (default: 0)")]
+        public float? LetterSpacing { get; init; }
+
         [CommandOption("--font-color|--fontcolor")]
         [Description("Image output: text colour as hex (#AARRGGBB/#RRGGBB) or name (default: white)")]
         public string? FontColor { get; init; }
@@ -1361,6 +1365,16 @@ internal sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
     /// </summary>
     private static string? ApplyImageStyleFlags(Settings settings, ImageExportStyle style)
     {
+        if (settings.LetterSpacing.HasValue)
+        {
+            if (!float.IsFinite(settings.LetterSpacing.Value))
+            {
+                return "--letter-spacing must be a finite number of pixels.";
+            }
+
+            style.LetterSpacing = settings.LetterSpacing.Value;
+        }
+
         if (!string.IsNullOrWhiteSpace(settings.FontName))
         {
             style.FontName = settings.FontName;

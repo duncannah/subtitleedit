@@ -16,6 +16,7 @@ internal sealed class ImageExportStyle
 {
     public string FontName { get; set; } = "Arial";
     public float FontSize { get; set; } = 50;
+    public float LetterSpacing { get; set; }
     public SKColor FontColor { get; set; } = SKColors.White;
     public bool IsBold { get; set; }
     public SKColor OutlineColor { get; set; } = SKColors.Black;

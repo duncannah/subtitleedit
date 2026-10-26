@@ -70,6 +70,8 @@ internal static class ImageOutputWriter
         var (screenWidth, screenHeight) = options.Resolution ?? (1920, 1080);
         ApplyReelDuration(handler, options);
 
+        var letterSpacing = handler.ExportImageType == ExportImageType.BluRaySup ? options.ImageStyle.LetterSpacing : 0;
+
         // "{\pos(x,y)}" is in the script's own resolution, the export canvas may be another one.
         var (scriptWidth, scriptHeight) = ExportTextTags.GetScriptResolution(subtitle.Header);
 
@@ -83,6 +85,7 @@ internal static class ImageOutputWriter
 
         // Pre-render header with the first paragraph as a representative
         var firstParam = BuildParameter(subtitle.Paragraphs[0], 0, screenWidth, screenHeight, scriptHeight, options, assaStyles);
+        ApplyLetterSpacing(firstParam, letterSpacing);
         firstParam.Bitmap = ImageRenderer.GenerateBitmap(firstParam);
         handler.WriteHeader(filePath, firstParam);
         firstParam.Bitmap?.Dispose();
@@ -98,6 +101,7 @@ internal static class ImageOutputWriter
         {
             var p = paragraphs[i];
             var ip = BuildParameter(p, i, screenWidth, screenHeight, scriptHeight, options, assaStyles);
+            ApplyLetterSpacing(ip, letterSpacing);
             ip.Bitmap = ImageRenderer.GenerateBitmap(ip);
             // Needs the rendered size, so it cannot happen in BuildParameter.
             ExportTextTags.ApplyPositionTag(ip, p.Text, scriptWidth, scriptHeight);
@@ -112,6 +116,36 @@ internal static class ImageOutputWriter
             ip.Bitmap?.Dispose();
         }
         handler.WriteFooter();
+    }
+
+    private static void ApplyLetterSpacing(ImageParameter parameter, float spacing)
+    {
+        if (spacing == 0)
+        {
+            return;
+        }
+
+        var effects = new TextEffects { LetterSpacing = spacing };
+        if (parameter.OutlineWidth > 0)
+        {
+            effects.Strokes.Add(new TextEffectStroke
+            {
+                Width = (float)parameter.OutlineWidth,
+                Fill = TextEffectFill.Solid(parameter.OutlineColor),
+            });
+        }
+
+        if (parameter.ShadowWidth > 0)
+        {
+            effects.Shadows.Add(new TextEffectShadow
+            {
+                Dx = (float)parameter.ShadowWidth,
+                Dy = (float)parameter.ShadowWidth,
+                Color = parameter.ShadowColor,
+            });
+        }
+
+        parameter.TextEffects = effects;
     }
 
     /// <summary>

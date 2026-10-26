@@ -547,8 +547,25 @@ public static class ImageRenderer
                 {
                     var seg = line[j];
                     var font = fonts.Get(seg);
-                    lineWidths[li] += MeasureTextWithShaping(seg.Text, font);
+                    if (ip.TextEffects is { LetterSpacing: not 0 } effects)
+                    {
+                        ForEachFontRun(seg.Text, font, (runText, runFont) =>
+                        {
+                            using var shaper = new SKShaper(runFont.Typeface);
+                            var result = shaper.Shape(runText, runFont);
+                            lineWidths[li] += result.Width + result.Codepoints.Length * effects.LetterSpacing;
+                        });
+                    }
+                    else
+                    {
+                        lineWidths[li] += MeasureTextWithShaping(seg.Text, font);
+                    }
                     lineWidths[li] += GetStyledSegmentGap(line, j, font, ip.IsRightToLeft);
+                }
+
+                if (ip.TextEffects is { LetterSpacing: not 0 } spacingEffects)
+                {
+                    lineWidths[li] = Math.Max(0, lineWidths[li] - spacingEffects.LetterSpacing);
                 }
             }
             var maxLineWidth = lineWidths.Length > 0 ? lineWidths.Max() : 0f;

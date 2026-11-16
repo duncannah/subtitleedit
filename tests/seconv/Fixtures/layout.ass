@@ -1,0 +1,21 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Speech,Arial,60,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,0,2,60,60,60,1
+Style: Translation,Arial,40,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,0,8,60,60,60,1
+Style: Decoration,Arial,40,&H00000000,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,6,0,8,60,60,60,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.00,0:00:02.00,Speech,,0,0,0,,Ordinary dialogue one
+Dialogue: 0,0:00:03.00,0:00:04.00,Speech,,0,0,0,,Ordinary dialogue two
+Dialogue: 0,0:00:10.00,0:00:14.00,Speech,,0,0,0,,Dialogue stays steady
+Dialogue: 0,0:00:10.50,0:00:12.00,Decoration,,0,0,0,,{\pos(962,641)}A translated sign\NSecond line
+Dialogue: 1,0:00:10.50,0:00:12.00,Translation,,0,0,0,,{\pos(960,640)}A translated sign\NSecond line
+Dialogue: 1,0:00:11.00,0:00:13.00,Translation,,0,0,0,,{\an9\pos(1100,700)}Independent translation
+Dialogue: 0,0:00:12.00,0:00:15.00,Translation,,0,0,0,,{\pos(960,620)\fad(200,200)}A third sign
+Dialogue: 1,0:00:10.50,0:00:12.00,Translation,,0,0,0,,{\pos(160,640)}A translated sign\NSecond line

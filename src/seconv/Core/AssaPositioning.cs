@@ -43,29 +43,42 @@ internal sealed class AssaPositioning
             return;
         }
 
-        var style = _styles.GetStyle(paragraph.Extra);
-        var left = Margin(paragraph.MarginL, style.MarginLeft);
-        var right = Margin(paragraph.MarginR, style.MarginRight);
-        var vertical = Margin(paragraph.MarginV, style.MarginVertical);
-        var x = parameter.Alignment switch
-        {
-            ExportAlignment.TopLeft or ExportAlignment.MiddleLeft or ExportAlignment.BottomLeft => left,
-            ExportAlignment.TopRight or ExportAlignment.MiddleRight or ExportAlignment.BottomRight => width - right,
-            _ => (width + (double)left - right) / 2,
-        };
-        var y = parameter.Alignment switch
-        {
-            ExportAlignment.TopLeft or ExportAlignment.TopCenter or ExportAlignment.TopRight => vertical,
-            ExportAlignment.MiddleLeft or ExportAlignment.MiddleCenter or ExportAlignment.MiddleRight => height / 2.0,
-            _ => height - vertical,
-        };
+        var (x, y) = SourceAnchor(paragraph);
 
         // Reuse the existing anchor, independent-axis scaling and on-screen clamping.
         ExportTextTags.ApplyPositionTag(parameter,
             string.Create(CultureInfo.InvariantCulture, $"{{\\pos({x},{y})}}"), width, height);
     }
 
-    private bool IsPositioned(Paragraph paragraph)
+    internal (double X, double Y) SourceAnchor(Paragraph paragraph)
+    {
+        if (ExportTextTags.TryGetPosition(paragraph.Text, out var positionX, out var positionY))
+        {
+            return (positionX, positionY);
+        }
+        var (width, height) = _styles.ScriptResolution;
+        var style = _styles.GetStyle(paragraph.Extra);
+        var alignment = Alignment(paragraph);
+        var left = Margin(paragraph.MarginL, style.MarginLeft);
+        var right = Margin(paragraph.MarginR, style.MarginRight);
+        var vertical = Margin(paragraph.MarginV, style.MarginVertical);
+        var x = alignment switch
+        {
+            ExportAlignment.TopLeft or ExportAlignment.MiddleLeft or ExportAlignment.BottomLeft => left,
+            ExportAlignment.TopRight or ExportAlignment.MiddleRight or ExportAlignment.BottomRight => width - right,
+            _ => (width + (double)left - right) / 2,
+        };
+        var y = alignment switch
+        {
+            ExportAlignment.TopLeft or ExportAlignment.TopCenter or ExportAlignment.TopRight => vertical,
+            ExportAlignment.MiddleLeft or ExportAlignment.MiddleCenter or ExportAlignment.MiddleRight => height / 2.0,
+            _ => height - vertical,
+        };
+
+        return (x, y);
+    }
+
+    internal bool IsPositioned(Paragraph paragraph)
     {
         return HasExplicitPosition(paragraph) || Alignment(paragraph) != ExportAlignment.BottomCenter ||
                IsAsymmetric(paragraph) ||
@@ -79,7 +92,7 @@ internal sealed class AssaPositioning
                ExportTextTags.GetAlignment(paragraph.Text, (ExportAlignment)(-1)) != (ExportAlignment)(-1);
     }
 
-    private ExportAlignment Alignment(Paragraph paragraph)
+    internal ExportAlignment Alignment(Paragraph paragraph)
     {
         var style = _styles.GetStyle(paragraph.Extra);
         var alignment = ExportTextTags.GetAlignment($"{{\\an{style.Alignment}}}", ExportAlignment.BottomCenter);

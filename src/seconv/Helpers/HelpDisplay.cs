@@ -133,6 +133,10 @@ internal static class HelpDisplay
         ShowParameter(console, "--full-frame-background-color:<colour>", "Background of the full frame image (default: transparent)");
         ShowParameter(console, "--no-assa-styles", "Draw ASSA/SSA input with these image options instead of each line's own style");
         ShowParameter(console, "--preserve-assa-positioning", "Blu-ray SUP: keep special ASS positions with global styling; ordinary dialogue uses the global alignment and margins");
+        ShowParameter(console, "--collapse-assa-layers", "Blu-ray SUP: collapse decorative ASS copies before rendering");
+        ShowParameter(console, "--relative-positioned-font-size", "Blu-ray SUP: use relative source sizes for positioned ASS text with global styling");
+        ShowParameter(console, "--avoid-subtitle-overlap", "Blu-ray SUP: place overlapping subtitles consistently across their lifetimes; keep decorative copies together");
+        ShowParameter(console, "--debug-assa-layout", "Blu-ray SUP: report ASS layout decisions to stderr");
         ShowParameter(console, "--mode-3d:<mode>", "3D video, one copy per eye: none (default) | half-side-by-side (sbs) | half-top-bottom (tab); also image → image");
         ShowParameter(console, "--depth-3d:<px>", "3D depth -100..100; positive brings the subtitle out of the screen. D-Cinema: the Z-position");
         ShowParameter(console, "--plane-3d:<file.ofs>", "3D Blu-ray 3D-Plane: each subtitle gets the disc's depth for its frames (--depth-3d where it has none)");

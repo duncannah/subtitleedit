@@ -55,6 +55,10 @@ internal sealed class ImageExportStyle
     public bool UseAssaStyles { get; set; } = true;
 
     public bool PreserveAssaPositioning { get; set; }
+    public bool CollapseAssaLayers { get; set; }
+    public bool RelativePositionedFontSize { get; set; }
+    public bool AvoidSubtitleOverlap { get; set; }
+    public bool DebugAssaLayout { get; set; }
 
     /// <summary>
     /// Background of the frame-sized image made when <see cref="IsFullFrame"/> is set. Separate

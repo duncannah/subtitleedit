@@ -371,6 +371,22 @@ internal sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
         [Description("Blu-ray SUP: preserve special ASS positions while using the global image styling options")]
         public bool PreserveAssaPositioning { get; init; }
 
+        [CommandOption("--collapse-assa-layers")]
+        [Description("Blu-ray SUP: collapse confidently identified decorative ASS copies")]
+        public bool CollapseAssaLayers { get; init; }
+
+        [CommandOption("--relative-positioned-font-size")]
+        [Description("Blu-ray SUP: scale positioned ASS text relative to ordinary dialogue")]
+        public bool RelativePositionedFontSize { get; init; }
+
+        [CommandOption("--avoid-subtitle-overlap")]
+        [Description("Blu-ray SUP: assign stable positions to avoid subtitle collisions")]
+        public bool AvoidSubtitleOverlap { get; init; }
+
+        [CommandOption("--debug-assa-layout")]
+        [Description("Blu-ray SUP: report ASS grouping, sizing and placement to stderr")]
+        public bool DebugAssaLayout { get; init; }
+
         [CommandOption("--full-frame-background-color|--fullframebackgroundcolor")]
         [Description("Image output: background of the full frame image (default: transparent)")]
         public string? FullFrameBackgroundColor { get; init; }
@@ -1557,6 +1573,10 @@ internal sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
         }
 
         style.PreserveAssaPositioning = settings.PreserveAssaPositioning;
+        style.CollapseAssaLayers = settings.CollapseAssaLayers;
+        style.RelativePositionedFontSize = settings.RelativePositionedFontSize;
+        style.AvoidSubtitleOverlap = settings.AvoidSubtitleOverlap;
+        style.DebugAssaLayout = settings.DebugAssaLayout;
 
         if (!string.IsNullOrWhiteSpace(settings.FullFrameBackgroundColor))
         {

@@ -77,8 +77,13 @@ internal static class ImageOutputWriter
 
         // ASSA/SSA input - a header with styles - is drawn with each line's own style unless
         // --no-assa-styles.
-        var preservePositioning = options.ImageStyle.PreserveAssaPositioning && handler.ExportImageType == ExportImageType.BluRaySup;
-        var assaStyles = options.ImageStyle.UseAssaStyles || preservePositioning ? ExportAssaStyles.FromHeader(subtitle.Header) : null;
+        var isPgs = handler.ExportImageType == ExportImageType.BluRaySup;
+        var preservePositioning = isPgs && (options.ImageStyle.PreserveAssaPositioning || options.ImageStyle.CollapseAssaLayers || options.ImageStyle.RelativePositionedFontSize);
+        var sourceStyles = ExportAssaStyles.FromHeader(subtitle.Header);
+        var layout = isPgs && sourceStyles != null && (options.ImageStyle.CollapseAssaLayers ||
+            options.ImageStyle.RelativePositionedFontSize || options.ImageStyle.AvoidSubtitleOverlap || options.ImageStyle.DebugAssaLayout)
+            ? new AssaLayout(subtitle, sourceStyles, options.ImageStyle) : null;
+        var assaStyles = options.ImageStyle.UseAssaStyles || preservePositioning ? sourceStyles : null;
         if (assaStyles != null)
         {
             (scriptWidth, scriptHeight) = assaStyles.ScriptResolution;
@@ -103,22 +108,27 @@ internal static class ImageOutputWriter
         // OrderBy is stable, so lines starting together keep their order. The index is the
         // position in the file: the Blu-ray composition numbers count up with it.
         var paragraphs = subtitle.Paragraphs.OrderBy(p => p.StartTime.TotalMilliseconds).ToList();
+        if (layout != null)
+        {
+            paragraphs = layout.Cues.Select(c => c.Paragraph).ToList();
+            if (options.ImageStyle.AvoidSubtitleOverlap)
+            {
+                for (var i = 0; i < paragraphs.Count; i++)
+                {
+                    var measured = Render(paragraphs[i], i);
+                    layout.Cues[i].Bounds = AssaLayout.RenderedBounds(measured);
+                    measured.Bitmap.Dispose();
+                }
+                layout.Solve(screenWidth, screenHeight, options.TargetFps ?? options.Fps ?? 25.0);
+            }
+        }
         var apply3D = Stereo3DImage.IsModeSupported(handler.ExportImageType);
         for (var i = 0; i < paragraphs.Count; i++)
         {
             var p = paragraphs[i];
-            var ip = BuildParameter(p, i, screenWidth, screenHeight, scriptHeight, options, assaStyles, positioning);
-            ApplyLetterSpacing(ip, letterSpacing);
-            ip.Bitmap = ImageRenderer.GenerateBitmap(ip);
-            // Needs the rendered size, so it cannot happen in BuildParameter.
-            if (positioning != null)
-            {
-                positioning.ApplyPosition(ip, p);
-            }
-            else
-            {
-                ExportTextTags.ApplyPositionTag(ip, p.Text, scriptWidth, scriptHeight);
-            }
+            var ip = Render(p, i);
+            if (layout?.Cues[i].Position is { } adjusted) ip.OverridePosition = adjusted;
+            if (layout != null) layout.ReportBounds(layout.Cues[i], ip);
             if (apply3D)
             {
                 // Last: each eye's copy goes where the flat subtitle ended up.
@@ -130,6 +140,28 @@ internal static class ImageOutputWriter
             ip.Bitmap?.Dispose();
         }
         handler.WriteFooter();
+
+        ImageParameter Render(Paragraph p, int index)
+        {
+            var parameter = BuildParameter(p, index, screenWidth, screenHeight, scriptHeight, options, assaStyles, positioning);
+            if (layout != null) layout.ApplyTypography(layout.Cues[index], parameter);
+            ApplyLetterSpacing(parameter, letterSpacing);
+            parameter.Bitmap = ImageRenderer.GenerateBitmap(parameter);
+            if (layout != null && options.ImageStyle.AvoidSubtitleOverlap &&
+                (parameter.Bitmap.Width > screenWidth || parameter.Bitmap.Height > screenHeight))
+            {
+                var scale = Math.Min((double)screenWidth / parameter.Bitmap.Width, (double)screenHeight / parameter.Bitmap.Height);
+                var fitted = parameter.Bitmap.Resize(new SKImageInfo(Math.Max(1, (int)(parameter.Bitmap.Width * scale)),
+                    Math.Max(1, (int)(parameter.Bitmap.Height * scale))), new SKSamplingOptions(SKFilterMode.Linear));
+                if (fitted == null) throw new InvalidOperationException("Cannot fit the subtitle image inside the output frame.");
+                parameter.Bitmap.Dispose();
+                parameter.Bitmap = fitted;
+                if (options.ImageStyle.DebugAssaLayout) Console.Error.WriteLine($"ASS layout: event {layout.Cues[index].SourceIndex}: oversized image scaled to fit the frame");
+            }
+            if (positioning != null) positioning.ApplyPosition(parameter, p);
+            else ExportTextTags.ApplyPositionTag(parameter, p.Text, scriptWidth, scriptHeight);
+            return parameter;
+        }
     }
 
     private static void ApplyLetterSpacing(ImageParameter parameter, float spacing)

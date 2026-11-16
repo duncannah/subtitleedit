@@ -1,0 +1,30 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Main,Comic Sans MS,51,&H003B403F,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,60,60,60,1
+Style: SameLayout,Arial,10,&H000000FF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,80,80,60,1
+Style: Elevated,Arial,10,&H000000FF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,60,60,240,1
+Style: Optext1,Comic Sans MS,51,&H003B403F,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,8,1680,60,375,1
+Style: Optext2,Comic Sans MS,51,&H003B403F,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,60,1620,60,1
+Style: Optext3,Comic Sans MS,51,&H003B403F,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,1725,30,180,1
+Style: Optext4,Comic Sans MS,51,&H003B403F,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,30,1770,30,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.00,0:00:02.00,Main,,0,0,0,,Ordinary dialogue
+Dialogue: 0,0:00:03.00,0:00:04.00,SameLayout,,0,0,0,,Ordinary dialogue
+Dialogue: 0,0:00:05.00,0:00:06.00,Main,,0,0,0,,Ordinary dialogue
+Dialogue: 0,0:00:07.00,0:00:08.00,Elevated,,0,0,0,,Elevated text
+Dialogue: 0,0:00:09.00,0:00:10.00,Main,,1200,60,150,,Event margins
+Dialogue: 0,0:00:11.00,0:00:12.00,Main,,0,0,0,,{\an9\pos(1500,200)\fnComic Sans MS\fs12\c&H0000FF&\bord8\shad9\fsp20}Explicit position
+Dialogue: 0,0:00:13.00,0:00:14.00,Main,,0,0,0,,{\an8}Top text
+Dialogue: 0,0:00:15.00,0:00:16.00,Main,,0,0,180,,Vertical override
+Dialogue: 0,0:00:17.00,0:00:19.00,Main,,0,0,0,,{\fad(200,200)}Fade text
+Dialogue: 0,0:00:57.04,0:00:57.79,Optext1,txt,0,0,0,,I \Nforgot\N my\N wallet
+Dialogue: 0,0:00:57.41,0:00:58.16,Optext2,txt,0,0,0,,The \Nsound is\N kinda \Ndistant
+Dialogue: 0,0:00:57.79,0:00:58.87,Optext3,txt,0,0,0,,Oh \Nyeah, \NI'm \Nwearing \Ncontacts
+Dialogue: 0,0:00:58.16,0:00:58.87,Optext4,txt,0,0,0,,Doesn't\N notice\N it's a \Nbendy \Nstraw

@@ -54,6 +54,8 @@ internal sealed class ImageExportStyle
     /// </summary>
     public bool UseAssaStyles { get; set; } = true;
 
+    public bool PreserveAssaPositioning { get; set; }
+
     /// <summary>
     /// Background of the frame-sized image made when <see cref="IsFullFrame"/> is set. Separate
     /// from <see cref="BackgroundColor"/>, which is the box behind the text - transparent by

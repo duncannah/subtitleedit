@@ -367,6 +367,10 @@ internal sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
         [Description("Image output: draw ASSA/SSA lines with the image styling options instead of each line's own style from the file")]
         public bool NoAssaStyles { get; init; }
 
+        [CommandOption("--preserve-assa-positioning")]
+        [Description("Blu-ray SUP: preserve special ASS positions while using the global image styling options")]
+        public bool PreserveAssaPositioning { get; init; }
+
         [CommandOption("--full-frame-background-color|--fullframebackgroundcolor")]
         [Description("Image output: background of the full frame image (default: transparent)")]
         public string? FullFrameBackgroundColor { get; init; }
@@ -1551,6 +1555,8 @@ internal sealed class ConvertCommand : AsyncCommand<ConvertCommand.Settings>
         {
             style.UseAssaStyles = false;
         }
+
+        style.PreserveAssaPositioning = settings.PreserveAssaPositioning;
 
         if (!string.IsNullOrWhiteSpace(settings.FullFrameBackgroundColor))
         {

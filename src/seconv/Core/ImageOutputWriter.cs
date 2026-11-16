@@ -77,14 +77,21 @@ internal static class ImageOutputWriter
 
         // ASSA/SSA input - a header with styles - is drawn with each line's own style unless
         // --no-assa-styles.
-        var assaStyles = options.ImageStyle.UseAssaStyles ? ExportAssaStyles.FromHeader(subtitle.Header) : null;
+        var preservePositioning = options.ImageStyle.PreserveAssaPositioning && handler.ExportImageType == ExportImageType.BluRaySup;
+        var assaStyles = options.ImageStyle.UseAssaStyles || preservePositioning ? ExportAssaStyles.FromHeader(subtitle.Header) : null;
         if (assaStyles != null)
         {
             (scriptWidth, scriptHeight) = assaStyles.ScriptResolution;
         }
 
+        var positioning = preservePositioning && assaStyles != null ? new AssaPositioning(subtitle, assaStyles) : null;
+        if (positioning != null)
+        {
+            assaStyles = null;
+        }
+
         // Pre-render header with the first paragraph as a representative
-        var firstParam = BuildParameter(subtitle.Paragraphs[0], 0, screenWidth, screenHeight, scriptHeight, options, assaStyles);
+        var firstParam = BuildParameter(subtitle.Paragraphs[0], 0, screenWidth, screenHeight, scriptHeight, options, assaStyles, positioning);
         ApplyLetterSpacing(firstParam, letterSpacing);
         firstParam.Bitmap = ImageRenderer.GenerateBitmap(firstParam);
         handler.WriteHeader(filePath, firstParam);
@@ -100,11 +107,18 @@ internal static class ImageOutputWriter
         for (var i = 0; i < paragraphs.Count; i++)
         {
             var p = paragraphs[i];
-            var ip = BuildParameter(p, i, screenWidth, screenHeight, scriptHeight, options, assaStyles);
+            var ip = BuildParameter(p, i, screenWidth, screenHeight, scriptHeight, options, assaStyles, positioning);
             ApplyLetterSpacing(ip, letterSpacing);
             ip.Bitmap = ImageRenderer.GenerateBitmap(ip);
             // Needs the rendered size, so it cannot happen in BuildParameter.
-            ExportTextTags.ApplyPositionTag(ip, p.Text, scriptWidth, scriptHeight);
+            if (positioning != null)
+            {
+                positioning.ApplyPosition(ip, p);
+            }
+            else
+            {
+                ExportTextTags.ApplyPositionTag(ip, p.Text, scriptWidth, scriptHeight);
+            }
             if (apply3D)
             {
                 // Last: each eye's copy goes where the flat subtitle ended up.
@@ -318,7 +332,7 @@ internal static class ImageOutputWriter
         };
     }
 
-    private static ImageParameter BuildParameter(Paragraph p, int index, int screenWidth, int screenHeight, int scriptHeight, ConversionOptions options, ExportAssaStyles? assaStyles = null)
+    private static ImageParameter BuildParameter(Paragraph p, int index, int screenWidth, int screenHeight, int scriptHeight, ConversionOptions options, ExportAssaStyles? assaStyles = null, AssaPositioning? positioning = null)
     {
         var style = options.ImageStyle;
 
@@ -373,10 +387,19 @@ internal static class ImageOutputWriter
         // The line's own style first, so the override tags below win over it.
         assaStyles?.Apply(imageParameter, p.Extra, text, p.MarginL, p.MarginR, p.MarginV);
 
+        if (positioning != null)
+        {
+            imageParameter.Text = HtmlUtil.RemoveHtmlTags(imageParameter.Text, true);
+            positioning.ApplyAlignment(imageParameter, p);
+        }
+
         // "{\3c..}"/"{\4c..}"/"{\bord..}"/"{\shad..}", "{\fad(..)}" and "{\alpha&H..&}"
         // change what is drawn, so they have to be read before the bitmap is rendered -
         // overrides first, the transparencies fade whatever colours are on the parameter.
-        ExportTextTags.ApplyStyleOverrideTags(imageParameter, text, scriptHeight);
+        if (positioning == null)
+        {
+            ExportTextTags.ApplyStyleOverrideTags(imageParameter, text, scriptHeight);
+        }
         ExportTextTags.ApplyTransparencyTags(imageParameter, text);
 
         return imageParameter;
